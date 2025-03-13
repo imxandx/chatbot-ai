@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Courier New", monospace;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            background-color: #171717;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.1rem;
+            font-weight: 700;
+            color: #4D4860;
+            margin-bottom: 10px;
+            font-family: "Courier New", monospace
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #4D4860;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-family: "Courier New", monospace
+        }
+
+        .wrapper-content {
+            width: 100%;
+            max-width: 800px;
+            background-color: #fff;
+            border: 1px solid #4D4860;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .mockup-browser-toolbar {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #333333;
+            border-bottom: 1px solid #4D4860;
+        }
+
+        .mockup-browser-toolbar .input {
+            flex: 1;
+            padding: 8px;
+            background-color: #2B2B2C;
+            border: 1px solid #4D4860;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .chat-history {
+            height: 400px;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #333333;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
+        }
+
+        .user-msg {
+            background-color: #7E80A0;
+            color: #fff;
+            margin-left: auto;
+        }
+
+        .bot-msg {
+            background-color: #2B2B2C;
+            color: #fff;
+            margin-right: auto;
+        }
+
+        .handle-search {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+        }
+
+        .input-message {
+            flex: 1;
+            width: 100%;
+            max-width: 270px;
+            height: 60px;
+            padding: 12px;
+            font-size: 1rem;
+            color: #000;
+            background-color: #fff;
+            border: 4px solid #000;
+            border-radius: 0;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 8px 8px 0 #000;
+            margin-right: 10px;
+        }
+
+        .input-message::placeholder {
+            color: #888;
+        }
+
+        .input-message:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 12px 12px 0 #000;
+        }
+
+        .input-message:focus {
+            background-color: #000;
+            color: #fff;
+            border-color: #ffffff;
+        }
+
+        .input-message:focus::placeholder {
+            color: #fff;
+        }
+
+        @keyframes typing {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        @keyframes blink {
+            50% {
+                border-color: transparent;
+            }
+        }
+
+        .input-message:focus::after {
+            content: "|";
+            position: absolute;
+            right: 10px;
+            animation: blink 0.7s step-end infinite;
+        }
+
+        .input-message:valid {
+            animation: typing 2s steps(30, end);
+        }
+
+        .input-message {
+            width: 100%;
+            height: 60px;
+            padding: 12px;
+            font-size: 18px;
+            color: #2B2B2C;
+            background-color: #fff;
+            border: 4px solid #2B2B2C;
+            border-radius: 0;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 8px 8px 0 #2B2B2C;
+        }
+
+        .input-message::placeholder {
+            color: #888;
+        }
+
+        .input-message:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 12px 12px 0 #2B2B2C;
+        }
+
+        .input-message:focus {
+            background-color: #2B2B2C;
+            color: #fff;
+            border-color: #d6d9dd;
+        }
+
+        .input-message:focus::placeholder {
+            color: #fff;
+        }
+
+        @keyframes shake {
+            0% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-5px) rotate(-5deg);
+            }
+            50% {
+                transform: translateX(5px) rotate(5deg);
+            }
+            75% {
+                transform: translateX(-5px) rotate(-5deg);
+            }
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        .input-message:focus {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes glitch {
+            0% {
+                transform: none;
+                opacity: 1;
+            }
+            7% {
+                transform: skew(-0.5deg, -0.9deg);
+                opacity: 0.75;
+            }
+            10% {
+                transform: none;
+                opacity: 1;
+            }
+            27% {
+                transform: none;
+                opacity: 1;
+            }
+            30% {
+                transform: skew(0.8deg, -0.1deg);
+                opacity: 0.75;
+            }
+            35% {
+                transform: none;
+                opacity: 1;
+            }
+            52% {
+                transform: none;
+                opacity: 1;
+            }
+            55% {
+                transform: skew(-1deg, 0.2deg);
+                opacity: 0.75;
+            }
+            50% {
+                transform: none;
+                opacity: 1;
+            }
+            72% {
+                transform: none;
+                opacity: 1;
+            }
+            75% {
+                transform: skew(0.4deg, 1deg);
+                opacity: 0.75;
+            }
+            80% {
+                transform: none;
+                opacity: 1;
+            }
+            100% {
+                transform: none;
+                opacity: 1;
+            }
+        }
+
+        .input-message:not(:placeholder-shown) {
+            animation: glitch 1s linear infinite;
+        }
+
+        .handle-search::after {
+            content: "|";
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #2B2B2C;
+            animation: blink 0.7s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .input-message:focus + .handle-search::after {
+            color: #fff;
+        }
+
+        .input-message:not(:placeholder-shown) {
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-shadow: 0px 0px 0 #2B2B2C;
+        }
+
+        .handle-search .button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgb(20, 20, 20);
+            border: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0px 0px 0px 4px rgba(180, 160, 255, 0.253);
+            cursor: pointer;
+            transition-duration: 0.3s;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .svgIcon {
+            width: 12px;
+            transition-duration: 0.3s;
+        }
+
+        .svgIcon path {
+            fill: white;
+        }
+
+        .button:hover {
+            width: 140px;
+            border-radius: 50px;
+            transition-duration: 0.3s;
+            background-color: #010101;
+            align-items: center;
+        }
+
+        .button:hover .svgIcon {
+            /* width: 20px; */
+            transition-duration: 0.3s;
+            transform: translateY(-200%);
+        }
+
+        .button::before {
+            position: absolute;
+            bottom: -20px;
+            content: "Enviar";
+            color: white;
+            /* transition-duration: .3s; */
+            font-size: 0px;
+        }
+
+        .button:hover::before {
+            font-size: 13px;
+            opacity: 1;
+            bottom: unset;
+            /* transform: translateY(-30px); */
+            transition-duration: 0.3s;
+        }
+
+        .author {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translate(-50%);
+            font-size: 14px;
+            letter-spacing: 3px;
+            color: #4D4860;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+            margin: 10px auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Yprezott</h1>
+        <p>Como posso te ajudar hoje? | Imxandx's AI</p>
+        <div class="wrapper-content mockup-browser border-base-300 border w-full">
+            <div class="mockup-browser-toolbar">
+                <div class="input">https://imxandx.github.io/portfolio</div>
+            </div>
+            <div class="chat-history" id="chatHistory">
+                <!-- As mensagens serão exibidas aqui -->
+                <span class="loading-spinner loading loading-bars loading-md" style="display: none;" id="loading"></span>
+            </div>
+        </div>
+        <div class="handle-search">
+            <input type="text" class="input-message input-ghost" id="messageInput" placeholder="Digite sua mensagem...">
+            <button onclick="sendMessage()" class="button">
+                <svg class="svgIcon" viewBox="0 0 384 512">
+                    <path
+                        d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2V448c0 17.7 14.3 32 32 32s32-14.3 32-32V141.2L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"
+                    ></path>
+                    </svg>
+            </button>
+        </div>
+    </div>
+    <p class="author"><a href="https://imxandx.github.io/portfolio" target="_blank" rel="noopener">Alexandre Delaboneta &copy;</a></p>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.1/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const messageInput = document.getElementById('messageInput');
+
+            // Adiciona o event listener ao campo de input
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.keyCode === 13) { // Se a tecla pressionada for Enter
+                    e.preventDefault(); // Impede o comportamento padrão do Enter (nova linha)
+                    sendMessage();
+                }
+            });
+        });
+
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            const chatHistory = document.getElementById('chatHistory');
+            const loading = document.getElementById('loading');
+
+            if (message) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message', 'user-msg');
+                messageElement.textContent = message;
+                chatHistory.appendChild(messageElement);
+
+                // Exibir o loading
+                loading.style.display = 'block';
+                chatHistory.appendChild(loading);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+
+                // Enviar mensagem para o servidor
+                socket.emit('message', message);
+
+                // Limpar campo de entrada
+                messageInput.value = '';
+            }
+        }
+
+        socket.on('message', (data) => {
+            const chatHistory = document.getElementById('chatHistory');
+            const loading = document.getElementById('loading');
+
+            // Remover loading
+            loading.style.display = 'none';
+
+            // Adicionar mensagem do bot
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', 'bot-msg');
+            messageElement.textContent = data;
+            chatHistory.appendChild(messageElement);
+
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        });
+    </script>
+</body>
+</html>
